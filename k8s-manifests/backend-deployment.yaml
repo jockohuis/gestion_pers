@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend-container
+          image: solofonore/backend:7ca42d51473d56d29ed2cbf768f880100a204515
+          ports:
+            - containerPort: 8000
+          env:
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+          command:
+            - "sh"
+            - "-c"
+            - >
+              python3 manage.py makemigrations &&
+              python3 manage.py migrate &&
+              python3 manage.py runserver 0.0.0.0:8000

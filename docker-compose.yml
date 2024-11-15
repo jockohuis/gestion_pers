@@ -1,0 +1,42 @@
+version: "3.3"
+
+services:
+  database-service:
+    image: postgres:alpine
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data #volume
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    volumes:
+      - ./backend:/app
+    command: >
+     sh -c "python3 manage.py makemigrations &&
+            python3 manage.py migrate &&
+            python3 manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database-service
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports: 
+      - '3000:3000'
+    volumes: 
+      - ./frontend/src:/app/src
+    stdin_open: true
+    tty: true
+    depends_on: 
+      - backend
+      
+volumes:
+  postgres_data:
